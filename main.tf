@@ -4,6 +4,8 @@ provider "aws" {
   region  = "us-east-1"
 }
 
+
+
 # Create a VPC
 resource "aws_vpc" "vpc_terraform" {
   cidr_block = "10.10.0.0/16"
@@ -11,6 +13,8 @@ resource "aws_vpc" "vpc_terraform" {
     name = "vpc_terraform"
   }
 }
+
+
 
 # Create subnet
 resource "aws_subnet" "subnet_1_terraform" {
@@ -27,6 +31,9 @@ resource "aws_subnet" "subnet_2_terraform" {
     Name = "subnet_2_terraform"
    }
 }
+
+
+
   # Create gateway
   resource "aws_internet_gateway" "internetgateway_terraform" {
   vpc_id = aws_vpc.vpc_terraform.id
@@ -35,6 +42,8 @@ resource "aws_subnet" "subnet_2_terraform" {
     Name = "internetgateway_terraform"
   }
 }
+
+
 
 # Create routetable
 resource "aws_route_table" "routetable_terraform" {
@@ -49,11 +58,16 @@ resource "aws_route_table" "routetable_terraform" {
     Name = "routetable_terraform"
   }
 }
+
+
+
 #Create association route table
 resource "aws_route_table_association" "routetableassociation" {
   subnet_id      = aws_subnet.subnet_1_terraform.id
   route_table_id = aws_route_table.routetable_terraform.id
 }
+
+
 
 #Create clé RSA 4096
 resource "tls_private_key" "key_terraform" {
@@ -64,6 +78,9 @@ resource "aws_key_pair" "ec2-key-tf" {
   key_name   = "ec2-key-tf"
   public_key = tls_private_key.key_terraform.public_key_openssh
 }
+
+
+
 
 #Create EC2
 data "aws_ami" "ubuntu" {
@@ -107,6 +124,8 @@ resource "aws_instance" "ec2-test-2" {
   }
 }*/
 
+  
+
 #Create loadbalancer
 resource "aws_lb" "alb-terraform" {
   name               = "alb-terraform"
@@ -115,6 +134,10 @@ resource "aws_lb" "alb-terraform" {
   security_groups    = [aws_security_group.allow_http.id]
   subnets            = ["aws_subnet.subnet_1_terraform.id", "aws_subnet.subnet_2_terraform.id"]
 }
+
+
+
+
 #Create lb target group
 resource "aws_lb_target_group" "lb-target-group-tf" {
   name     = "lb-target-group-tf"
@@ -122,6 +145,10 @@ resource "aws_lb_target_group" "lb-target-group-tf" {
   protocol = "HTTP"
   vpc_id   = aws_vpc.vpc_terraform.id
 }
+
+
+
+
 #Create lb listner
 resource "aws_lb_listener" "alb_listner_terraform" {
   load_balancer_arn = aws_lb.alb-terraform.arn
@@ -133,6 +160,8 @@ resource "aws_lb_listener" "alb_listner_terraform" {
     target_group_arn = aws_lb_target_group.lb-target-group-tf.arn
   }
 }
+
+
 
 #Auto-scalling-group
 resource "aws_placement_group" "asg_placement_group_terraform" {
@@ -168,6 +197,10 @@ resource "aws_autoscaling_attachment" "asg_attachment_terraform" {
   autoscaling_group_name = aws_autoscaling_group.asg_terraform.id
   alb_target_group_arn   = aws_alb-target_group.lb-target-group-tf.arn
 }
+
+
+
+
 #Create LAUNCH CONFIGURATION
 resource "aws_launch_configuration" "launch_configuration_terraform" {
   image_id = data.aws_ami.ubuntu.id
@@ -224,6 +257,9 @@ resource "aws_security_group" "allow_ssh_vpc" {
     Name = "allow_ssh_vpc"
   }
 }
+
+
+
 
 #OUTPUT
 output "private_key" {
